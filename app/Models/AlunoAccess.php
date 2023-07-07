@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class AlunoAccess extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -18,27 +18,28 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     
+     protected $table = "alunos" ;
+    
      protected $fillable = [
-        'name',
         'email',
         'password',
-        'n_funcionario',
-        'formacao_academica',
-        'grau_academico',
-        'n_carteira',
-        'cargo_id',
-        'dataInicio',
-        'dataFim',
-        'visible',
+        'doc_certi_hab',
+        'doc_identificacao',
+        'n_estudate',
+        'primeiro_nome',
+        'ultimo_nome',
+        'banned_until',
+        'status',
+        'n_passaport',
         'pessoa_id',
     ];
-
     
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -53,4 +54,5 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\Pessoa;
 
 class UserController extends Controller
 {
@@ -16,39 +18,74 @@ class UserController extends Controller
 
         $user = Auth::user();
         $token =$user->createToken('jwt');
-        
+
         if(!$token){
             return response()->json('usuario invalido', 401);
         }
-
         return response()->json($token->plainTextToken);        
     }
+    
     public function store(Request $request)
-    {
-        // Valida os dados de cadastro
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
-    
-        // Cria um novo usuário com os dados validados
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password'])
-        ]);
-    
-        return response()->json($data, 200);
+    {        
+
+        try{
+
+            DB::beginTransaction();
+           
+            $data = $request->all();
+            $user =auth()->user();
+            $pessoa = Pessoa::create([
+                'name'=> $data['name'],
+                'contacto_id'=> $data['contacto_id'],
+                'avatar'=> $data['avatar'],
+                'pais'=> $data['pais'],
+                'municipio_id'=> $data['municipio_id'],
+                'provincia_id'=> $data['provincia_id'],
+                'data_nascimento'=> $data['data_nascimento'],
+                'num_bilhete'=> $data['num_bilhete'],
+                'num_cedula'=> $data['num_cedula'],
+                'n_passaport'=> $data['n_passaport'],
+                'bairro'=> $data['bairro'],
+                'genero_id'=> $data['genero_id'],
+                //'user_funcionario_id'=> $user->id,
+            ]);
+
+            // Cria um novo usuário com os dados validados
+  
+            $user = User::create([
+                'primeiro_nome' => $data['primeiro_nome'],
+                'ultimo_nome' => $data['ultimo_nome'],    
+                'email' =>$data['email'],
+                'password' =>$data['password'],
+                'n_funcionario' =>$data['n_funcionario'],
+                'formacao_academica' =>$data['formacao_academica'],
+                'grau_academico' =>$data['grau_academico'],
+                'n_carteira' =>$data['n_carteira'],
+                'cargo_id' =>$data['cargo_id'],
+                'dataInicio' =>$data['dataInicio'],
+                'dataFim' =>$data['dataFim'],
+                'visible' =>$data['visible'],
+                'pessoa_id' =>$pessoa->id,
+                'password' => bcrypt($data['password'])
+            ]);
+            DB::commit();
+
+            return response()->json($user, 200);
+        
+        }catch(Exception $e){
+            DB::rollback();
+            return response()->json('falha ao registrar aluno '.$e->getMessage(), 401);
+        }
            
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function me()
     {
-        //
+        $user=auth()->user();
+        return response()->json($user, 200);
     }
 
     /**

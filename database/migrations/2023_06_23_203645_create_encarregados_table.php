@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('encarregados', function (Blueprint $table) {
             $table->id();
-            $table->string('primeiro_nome');
-            $table->string('ultimo_nome');
-            $table->integer('contacto_id');
-            $table->string('email');
-            $table->integer('genero_id');
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->boolean('status');
+            $table->integer('aluno_encarregado_id');
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
             $table->timestamps();
         });
     }

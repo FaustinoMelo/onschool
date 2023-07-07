@@ -2,78 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Aluno;
-use App\Models\User;
+use App\Models\AlunoAccess;
+use App\Models\Pessoa;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AlunoController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
+     * 
      */
+    public function login(Request $request){
+        
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+    
+       
+        Auth::attempt([
+            'email' => $request->email,
+            'password' => $request->password
+        ]);
+
+        $user = Auth::user();
+        $token =$user->createToken('jwt');
+
+        if(!$token){
+            return response()->json('usuario invalido', 401);
+        }
+        return response()->json($token->plainTextToken);        
+    }
+
     public function store(Request $request)
     {
+       //return response()->json($request->json()->all(), 200);
+         try{
 
-        try{
-            // Valida os dados do aluno
-            /*$request->validate([
-                'tipo_documento_id' => 'required|integer',
-                'primeiro_nome' => 'required|string',
-                'ultimo_nome' => 'required|string',
-                'contacto_id' => 'required|integer',
-                'avatar' => 'nullable|image',
-                'encarregado_id' => 'required|integer',
-                'pais_id' => 'required|integer',
-                'municipio_id' => 'required|integer',
-                'provincia_id' => 'required|integer',
-                'data_nascimento' => 'required|date',
-                'num_bilhete' => 'nullable|string',
-                'num_cedula' => 'nullable|string',
-                'reg_id' => 'nullable|string',
-                'email' => 'required|string|email|unique:alunos,email',
-                'nomePai' => 'nullable|string',
-                'nomeMae' => 'nullable|string',
-                'banned_until' => 'nullable|date',
-                'status' => 'required|boolean',
-                'endereco' => 'nullable|string',
-                'genero_id' => 'required|integer',
-                'user_id' => 'required|integer',
-            ]); */
+            DB::beginTransaction();
+           
+            $data = $request->all();
+            $user =auth()->user();
 
-            $data = $request->json()->all();
-             // Cria um novo usuário com os dados validados
+            $pessoa = Pessoa::create([
+                'name'=> $data['name'],
+                'contacto_id'=> $data['contacto_id'],
+                'avatar'=> $data['avatar'],
+                'pais'=> $data['pais'],
+                'municipio_id'=> $data['municipio_id'],
+                'provincia_id'=> $data['provincia_id'],
+                'data_nascimento'=> $data['data_nascimento'],
+                'num_bilhete'=> $data['num_bilhete'],
+                'num_cedula'=> $data['num_cedula'],
+                'n_passaport'=> $data['n_passaport'],
+                'bairro'=> $data['bairro'],
+                'genero_id'=> $data['genero_id'],
+                //'user_funcionario_id'=> $user->id,
+            ]);
 
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'perfil_id' => 1,
-                'password' => bcrypt($data['num_bilhete'])
+            $user = AlunoAccess::crea2te([
+                'email'=> $data['email'],
+                'doc_certi_hab'=> $data['doc_certi_hab'],
+                'doc_identificacao'=> $data['doc_identificacao'],
+                'n_estudate'=> $data['n_estudate'],
+                'primeiro_nome'=> $data['primeiro_nome'],
+                'ultimo_nome'=> $data['ultimo_nome'],
+                //'banned_until'=> $data['banned_until'],
+                'status'=> $data['status'],
+                'pessoa_id' => $pessoa->id,
+                'password' => bcrypt($data['password'])
             ]);
 
             // Cria um novo aluno com os dados validados
-            $data['user_id'] = auth()->user()->id;
-            $data['user_aluno_id'] = $user->id;
+            // $data['user_id'] = auth()->user()->id;
+            
 
-            $student = Aluno::create($data);
-            return response()->json($student, 200);
+            DB::commit();
+
+            return response()->json($user, 200);
         
         }catch(Exception $e){
+            DB::rollback();
             return response()->json('falha ao registrar aluno '.$e->getMessage(), 401);
         }
     }

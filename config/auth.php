@@ -13,11 +13,6 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => 'web',
-        'passwords' => 'users',
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
@@ -35,9 +30,28 @@ return [
     |
     */
 
+    'defaults' => [
+        'guard' => 'user',
+        'passwords' => 'users',
+    ],
+
     'guards' => [
         'web' => [
             'driver' => 'session',
+            'provider' => 'users',
+        ],
+    
+        'aluno' => [
+            'driver' => 'sanctum',
+            'provider' => 'alunos',
+        ],
+        'encarregado' => [
+            'driver' => 'sanctum',
+            'provider' => 'encarregados',
+        ],
+
+        'user' => [
+            'driver' => 'sanctum',
             'provider' => 'users',
         ],
     ],
@@ -64,6 +78,17 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+
+        'alunos' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\AlunoAccess::class,
+        ],
+
+        'encarregados' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\EncarregadoAccess::class,
+        ],
+
 
         // 'users' => [
         //     'driver' => 'database',
@@ -97,6 +122,21 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        
+        'aluno_acess' => [
+            'provider' => 'alunos',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'encarregado_access' => [
+            'provider' => 'encarregados',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
     ],
 
     /*

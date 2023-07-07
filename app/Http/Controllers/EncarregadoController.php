@@ -2,46 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Encarregado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\EncarregadoAccess;
+
 
 class EncarregadoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    public function login(Request $request){
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        Auth::attempt([
+            'email' => $request->email,
+            'password' => $request->password
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
+        $user = Auth::user();
+        $token =$user->createToken('jwt');
+
+        if(!$token){
+            return response()->json('usuario invalido', 401);
+        }
+        return response()->json($token->plainTextToken);        
+    }
+    
     public function store(Request $request)
-    {
-        //
+    {        
+        // Valida os dados de cadastro
+       /* $data = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|unique:users,email',
+            'password' => 'required|string|confirmed'
+        ]);*/
+
+        // Cria um novo usuário com os dados validados
+        $data = $request->all();
+        $user = EncarregadoAccess::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password'])
+        ]);
+    
+        return response()->json($user,200);
+           
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Encarregado $encarregado)
+    public function me()
     {
-        //
+        $user=auth()->user();
+        return response()->json($user, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Encarregado $encarregado)
     {
         //

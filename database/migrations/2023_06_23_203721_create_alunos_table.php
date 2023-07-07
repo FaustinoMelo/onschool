@@ -13,33 +13,20 @@ return new class extends Migration
     {
         Schema::create('alunos', function (Blueprint $table) {
             $table->id();
-            $table->string('certi_hab');
+            $table->string('doc_certi_hab')->nullable();
+            $table->string('doc_identificacao');
+            $table->integer('n_estudate')->unique();
             $table->string('primeiro_nome');
             $table->string('ultimo_nome');
-            $table->string('contacto_id');
-            $table->string('avatar');
-            $table->integer('encarregado_id');
-            $table->integer('pais_id');
-            $table->integer('municipio_id');
-            $table->integer('provincia_id');
-            $table->date('data_nascimento');
-            $table->string('num_bilhete');
-            $table->string('num_cedula');
-            $table->string('reg_id');
-            $table->string('email');
-            $table->string('nomePai');
-            $table->string('nomeMae');
+            $table->string('nomePai')->nullable();
+            $table->string('nomeMae')->nullable();
             $table->string('banned_until');
             $table->integer('status');
-            $table->string('endereco');
-            $table->string('genero_id');
-            $table->integer('user_aluno_id')->nullable();
-            $table->integer('user_id')->nullable();
+            $table->integer('pessoa_id');
             $table->softDeletes();
             $table->timestamps();
         });
     }
-
    
     public function down(): void
     {
